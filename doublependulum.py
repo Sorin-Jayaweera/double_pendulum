@@ -73,5 +73,10 @@ def update(i):
     ax.plot([0,x[i]],[l,y[i]])
 
     
-ani = animation.FuncAnimation(fig=fig, func=update, frames=len(x), interval=30)
+anim = animation.FuncAnimation(fig=fig, func=update, frames=len(x), interval=30)
 plt.show()
+
+writervideo = animation.FFMpegWriter(fps=60) 
+anim.save('doublependulum.mp4', writer=writervideo)
+
+

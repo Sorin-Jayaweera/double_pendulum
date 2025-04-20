@@ -37,7 +37,8 @@ dddtheta = sym.diff(lagr,dtheta)
 #mddx = -glmsinx
 # w= np.arcsin(-1*ddtheta/(g*l))
 # dtheta = w
-upperlim = 2000
+upperlim = 20
+
 numpoints = 40 * upperlim +1
 
 def derivatives(t, X, m, l, g):
@@ -62,7 +63,6 @@ ax.set_ylabel('X')
 ax.set_aspect(1)
 ax.scatter(0,l)
 
-
 def update(i):
     ax.clear()
 
@@ -74,5 +74,10 @@ def update(i):
     #return (x[i], y[i])
 
     
-ani = animation.FuncAnimation(fig=fig, func=update, frames=len(x), interval=3)
+anim = animation.FuncAnimation(fig=fig, func=update, frames=len(x), interval=3)
 plt.show()
+
+writervideo = animation.FFMpegWriter(fps=60) 
+anim.save('singlependulum.mp4', writer=writervideo)
+plt.close()
+
