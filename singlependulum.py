@@ -65,6 +65,7 @@ ax.scatter(0,l)
 
 def update(i):
     ax.clear()
+    
     ax.set_aspect(1)
     plt.xlim(-5, 5)
     plt.ylim(-5, 5)
