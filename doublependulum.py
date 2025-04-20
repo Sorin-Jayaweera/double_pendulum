@@ -8,7 +8,6 @@ Created on Sun Apr 20 14:35:43 2025
 @author: wunderbear
 """
 
-
 # IMPORTS
 
 import numpy as np
@@ -31,11 +30,24 @@ L = sym.symbols("L")
 upperlim = 20
 numpoints = 40 * upperlim +1
 
-A = [al,be,de, ep]
-
 def matStuff(m1, l1, m2, l2, theta1, w1, theta2, w2, g):
     
-
+    al = m1*l1**2 + m2*l2**2
+    be = m2*l1*l2*np.cos(theta1 - theta2)
+    de = m2*l1*l2*np.cos(theta1-theta2)
+    ep = m2*l2
+    
+    A = np.matrix((al, be), (de, ep))
+    
+    gamma = m1*l1*l2*w2*np.sin(theta1 - theta2)*(w1-w2) + g*(m1 + m2)*l1*np.sin(theta1) - m2*w1*w2*l1*l2*np.sin(theta1 - theta2)
+    phi = (m2*l1*l2*np.sin(theta1 - theta2)*(w1-w2))*w1 + g*m2*l2*np.sin(theta2) + m2*theta2*l2**2 + m2
+    v = np.matrix(gamma, phi)
+    
+    invA = np.matrix.getI(A)
+    values = invA * v
+    
+    return values
+    
 
 def derivatives(t, X, m1, l1,m2,l2, g):
     theta1, w1, theta2, w2 = X
@@ -43,6 +55,7 @@ def derivatives(t, X, m1, l1,m2,l2, g):
 
     return derivs
 
+"""
 theta10 = np.pi/2
 theta20 = np.pi/2
 
@@ -73,10 +86,6 @@ def update(i):
     ax.plot([0,x[i]],[l,y[i]])
 
     
-anim = animation.FuncAnimation(fig=fig, func=update, frames=len(x), interval=30)
+ani = animation.FuncAnimation(fig=fig, func=update, frames=len(x), interval=30)
 plt.show()
-
-writervideo = animation.FFMpegWriter(fps=60) 
-anim.save('doublependulum.mp4', writer=writervideo)
-
-
+"""
