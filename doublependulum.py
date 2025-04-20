@@ -45,15 +45,67 @@ def matStuff(m1, l1, m2, l2, theta1, w1, theta2, w2, g):
     
     invA = np.matrix.getI(A)
     values = invA * v
-    
-    return values
+  
+    return values[0],values[1]
     
 
 def derivatives(t, X, m1, l1,m2,l2, g):
     theta1, w1, theta2, w2 = X
-    derivs = np.array([w1,theta1 ,w2,theta2]) #TODO: PUT IN THE EQUATIONS
+    #derivs = np.array([w1,theta1 ,w2,theta2]) #TODO: PUT IN THE EQUATIONS
+    res =matStuff(m1, l1, m2, l2, theta1, w1, theta2, w2, g)
+    
+    
+    a1 = res[0].item(0)
+    a2 = res[1].item(0)
+    
+    return [w1, a1, w2, a2]
 
-    return derivs
+theta10 = np.pi/2
+theta20 = 0
+
+res1 = solve_ivp(derivatives, [0, upperlim], [theta10,0,theta20,0],t_eval=np.linspace(0,upperlim,numpoints),args=(m1,l1,m2,l2,g))
+
+
+
+plt.close("all")
+theta1 = res1.y[0,:]
+theta2 = res1.y[2,:]
+t1 = res1.t
+x1 = l1 * np.sin(theta1)
+
+h = l1 + l2
+
+y1 = h+(l1*np.cos(theta1))
+
+x2 = x1 + l2* np.sin(theta2)
+y2 = y1 + l2*np.cos(theta2)
+
+        
+fig, ax = plt.subplots()
+
+ax.set_xlabel('T [Samples]')
+ax.set_ylabel('X')
+
+ax.set_aspect(1)
+ax.scatter(0,l1)
+ax.scatter(0,l2)
+
+
+def update(i):
+    ax.clear()
+
+    ax.set_aspect(1)
+    plt.xlim(-5, 5)
+    plt.ylim(-5, 5)
+    ax.scatter(x1[i],y1[i])
+    ax.plot([0,x1[i]],[l1,y1[i]])
+    ax.scatter(x2[i],y2[i])
+    ax.plot([x1[i],x2[i]],[y1[i],y2[i]])
+
+    
+ani = animation.FuncAnimation(fig=fig, func=update, frames=len(x1), interval=30)
+plt.show()
+
 
 """
 theta10 = np.pi/2
