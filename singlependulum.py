@@ -24,7 +24,7 @@ import time
 # Parameters of the system
 theta = sym.symbols("θ")
 dtheta = sym.symbols("dθ")
-l ,m, g = [2,1,0.1]
+l ,m, g = [3,1,9.8]
 L = sym.symbols("L")
 
 U =  m * g * l * (1-sym.cos(theta)) 
@@ -37,7 +37,7 @@ dddtheta = sym.diff(lagr,dtheta)
 #mddx = -glmsinx
 # w= np.arcsin(-1*ddtheta/(g*l))
 # dtheta = w
-upperlim = 20
+upperlim = 2000
 numpoints = 40 * upperlim +1
 
 def derivatives(t, X, m, l, g):
@@ -45,7 +45,7 @@ def derivatives(t, X, m, l, g):
     derivs = np.array([w, -l*g*np.sin(theta)])
     return derivs
 
-theta0 = np.pi/2
+theta0 = np.pi/3
 res1 = solve_ivp(derivatives, [0, upperlim], [theta0,0],t_eval=np.linspace(0,upperlim,numpoints),args=(m,l,g))
 
 plt.close("all")
@@ -74,5 +74,5 @@ def update(i):
     #return (x[i], y[i])
 
     
-ani = animation.FuncAnimation(fig=fig, func=update, frames=len(x), interval=30)
+ani = animation.FuncAnimation(fig=fig, func=update, frames=len(x), interval=3)
 plt.show()
