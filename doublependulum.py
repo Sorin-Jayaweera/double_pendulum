@@ -60,7 +60,7 @@ def derivatives(t, X, m1, l1,m2,l2, g):
     
     return [w1, a1, w2, a2]
 
-theta10 = np.pi/2
+theta10 = 0#np.pi/2
 theta20 = 0
 
 res1 = solve_ivp(derivatives, [0, upperlim], [theta10,0,theta20,0],t_eval=np.linspace(0,upperlim,numpoints),args=(m1,l1,m2,l2,g))
@@ -73,12 +73,14 @@ theta2 = res1.y[2,:]
 t1 = res1.t
 x1 = l1 * np.sin(theta1)
 
+
 h = l1 + l2
 
 y1 = h+(l1*np.cos(theta1))
 
 x2 = x1 + l2* np.sin(theta2)
 y2 = y1 + l2*np.cos(theta2)
+
 
         
 fig, ax = plt.subplots()
@@ -98,7 +100,7 @@ def update(i):
     plt.xlim(-5, 5)
     plt.ylim(-5, 5)
     ax.scatter(x1[i],y1[i])
-    ax.plot([0,x1[i]],[l1,y1[i]])
+    ax.plot([0,x1[i]],[h,y1[i]])
     ax.scatter(x2[i],y2[i])
     ax.plot([x1[i],x2[i]],[y1[i],y2[i]])
 
