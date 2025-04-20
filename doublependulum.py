@@ -31,6 +31,12 @@ L = sym.symbols("L")
 upperlim = 20
 numpoints = 40 * upperlim +1
 
+A = [al,be,de, ep]
+
+def matStuff(m1, l1, m2, l2, theta1, w1, theta2, w2, g):
+    
+
+
 def derivatives(t, X, m1, l1,m2,l2, g):
     theta1, w1, theta2, w2 = X
     derivs = np.array([w1,theta1 ,w2,theta2]) #TODO: PUT IN THE EQUATIONS
