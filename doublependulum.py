@@ -35,12 +35,14 @@ def matStuff(theta1, w1, theta2, w2, m1, l1, m2, l2, g):
     al = m1*l1**2 + m2*l2**2
     be = m2*l1*l2*np.cos(theta1 - theta2)
     de = m2*l1*l2*np.cos(theta1-theta2)
-    ep = m2*l2
+    ep = m2*l2**2
     
     A = np.matrix((al, be), (de, ep))
     
-    gamma = m2*w2*l1*l2*np.sin(theta1-theta2)*(w1-w2) - m2*w1*w2*l1*l2*np.sin(theta1 -theta2) +g*(m1+m2)*l1*np.sin(theta1) #m1*l1*l2*w2*np.sin(theta1 - theta2)*(w1-w2) + g*(m1 + m2)*l1*np.sin(theta1) - m2*w1*w2*l1*l2*np.sin(theta1 - theta2)
-    phi = g*m2*l2*np.sin(theta2) + m2*w1*w2*l1*l2*np.cos(theta1 - theta2) + m2*w1*l1*l2*np.sin(theta1-theta2)*(w1-w2) #(m2*l1*l2*np.sin(theta1 - theta2)*(w1-w2))*w1 + g*m2*l2*np.sin(theta2) + m2*theta2*l2**2 + m2
+    gamma = m1*l1*l2*np.sin(theta1-theta2) * (w1-w2) * w2 + g*(m1+m2)*l1*np.sin(theta1) - m2*w1*w2*l1*l2*np.sin(theta1-theta2)
+
+    #gamma = m2*w2*l1*l2*np.sin(theta1-theta2)*(w1-w2) - m2*w1*w2*l1*l2*np.sin(theta1 -theta2) +g*(m1+m2)*l1*np.sin(theta1) #m1*l1*l2*w2*np.sin(theta1 - theta2)*(w1-w2) + g*(m1 + m2)*l1*np.sin(theta1) - m2*w1*w2*l1*l2*np.sin(theta1 - theta2)
+    phi = m2*w1*l1*l2*np.sin(theta1-theta2)*(w1-w2) + g*m2*l2*np.sin(theta2) + m2*w1*w2*l1*l2*np.sin(theta1-theta2) #(m2*l1*l2*np.sin(theta1 - theta2)*(w1-w2))*w1 + g*m2*l2*np.sin(theta2) + m2*theta2*l2**2 + m2
     v = np.matrix(gamma, phi)
     
     invA = np.matrix.getI(A)
@@ -99,6 +101,9 @@ def update(i):
     ax.set_aspect(1)
     plt.xlim(-5, 5)
     plt.ylim(-5, 5)
+    #plt.xlim(-l1-l2, l1+l2)
+    #plt.ylim(0, l1+l2)
+    
     ax.scatter(x1[i],y1[i])
     ax.plot([0,x1[i]],[h,y1[i]])
     ax.scatter(x2[i],y2[i])
