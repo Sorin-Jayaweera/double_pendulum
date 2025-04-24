@@ -37,16 +37,22 @@ def matStuff(theta1, w1, theta2, w2, m1, l1, m2, l2, g):
     de = m2*l1*l2*np.cos(theta1-theta2)
     ep = m2*l2**2
     
-    A = np.matrix((al, be), (de, ep))
+    A = np.matrix([(al, be), (de, ep)])
+
     
-    gamma = m1*l1*l2*np.sin(theta1-theta2) * (w1-w2) * w2 + g*(m1+m2)*l1*np.sin(theta1) - m2*w1*w2*l1*l2*np.sin(theta1-theta2)
+    gamma =  m1*l1*l2*np.sin(theta1-theta2) * (w1-w2) * w2 + g*(m1+m2)*l1*np.sin(theta1) - m2*w1*w2*l1*l2*np.sin(theta1-theta2)
 
     #gamma = m2*w2*l1*l2*np.sin(theta1-theta2)*(w1-w2) - m2*w1*w2*l1*l2*np.sin(theta1 -theta2) +g*(m1+m2)*l1*np.sin(theta1) #m1*l1*l2*w2*np.sin(theta1 - theta2)*(w1-w2) + g*(m1 + m2)*l1*np.sin(theta1) - m2*w1*w2*l1*l2*np.sin(theta1 - theta2)
-    phi = m2*w1*l1*l2*np.sin(theta1-theta2)*(w1-w2) + g*m2*l2*np.sin(theta2) + m2*w1*w2*l1*l2*np.sin(theta1-theta2) #(m2*l1*l2*np.sin(theta1 - theta2)*(w1-w2))*w1 + g*m2*l2*np.sin(theta2) + m2*theta2*l2**2 + m2
-    v = np.matrix(gamma, phi)
+    phi =  m2*w1*l1*l2*np.sin(theta1-theta2)*(w1-w2) + g*m2*l2*np.sin(theta2) + m2*w1*w2*l1*l2*np.sin(theta1-theta2) #(m2*l1*l2*np.sin(theta1 - theta2)*(w1-w2))*w1 + g*m2*l2*np.sin(theta2) + m2*theta2*l2**2 + m2
+    v = np.matrix([[gamma], [phi]])
     
     invA = np.matrix.getI(A)
     values = invA * v
+
+    print("inv: ", invA)
+    print("v: ", v)
+    print("values: ", values)
+
   
     return values[0],values[1]
     
@@ -74,7 +80,6 @@ theta1 = res1.y[0,:]
 theta2 = res1.y[2,:]
 t1 = res1.t
 x1 = l1 * np.sin(theta1)
-
 
 h = l1 + l2
 
