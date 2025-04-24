@@ -30,7 +30,7 @@ L = sym.symbols("L")
 upperlim = 20
 numpoints = 40 * upperlim +1
 
-def matStuff(m1, l1, m2, l2, theta1, w1, theta2, w2, g):
+def matStuff(theta1, w1, theta2, w2, m1, l1, m2, l2, g):
     
     al = m1*l1**2 + m2*l2**2
     be = m2*l1*l2*np.cos(theta1 - theta2)
@@ -39,8 +39,8 @@ def matStuff(m1, l1, m2, l2, theta1, w1, theta2, w2, g):
     
     A = np.matrix((al, be), (de, ep))
     
-    gamma = m1*l1*l2*w2*np.sin(theta1 - theta2)*(w1-w2) + g*(m1 + m2)*l1*np.sin(theta1) - m2*w1*w2*l1*l2*np.sin(theta1 - theta2)
-    phi = (m2*l1*l2*np.sin(theta1 - theta2)*(w1-w2))*w1 + g*m2*l2*np.sin(theta2) + m2*theta2*l2**2 + m2
+    gamma = m2*w2*l1*l2*np.sin(theta1-theta2)*(w1-w2) - m2*w1*w2*l1*l2*np.sin(theta1 -theta2) +g*(m1+m2)*l1*np.sin(theta1) #m1*l1*l2*w2*np.sin(theta1 - theta2)*(w1-w2) + g*(m1 + m2)*l1*np.sin(theta1) - m2*w1*w2*l1*l2*np.sin(theta1 - theta2)
+    phi = g*m2*l2*np.sin(theta2) + m2*w1*w2*l1*l2*np.cos(theta1 - theta2) + m2*w1*l1*l2*np.sin(theta1-theta2)*(w1-w2) #(m2*l1*l2*np.sin(theta1 - theta2)*(w1-w2))*w1 + g*m2*l2*np.sin(theta2) + m2*theta2*l2**2 + m2
     v = np.matrix(gamma, phi)
     
     invA = np.matrix.getI(A)
@@ -49,10 +49,10 @@ def matStuff(m1, l1, m2, l2, theta1, w1, theta2, w2, g):
     return values[0],values[1]
     
 
-def derivatives(t, X, m1, l1,m2,l2, g):
+def derivatives(t, X, m1, l1, m2, l2, g):
     theta1, w1, theta2, w2 = X
     #derivs = np.array([w1,theta1 ,w2,theta2]) #TODO: PUT IN THE EQUATIONS
-    res =matStuff(m1, l1, m2, l2, theta1, w1, theta2, w2, g)
+    res = matStuff(theta1, w1, theta2, w2, m1, l1, m2, l2, g)
     
     
     a1 = res[0].item(0)
@@ -60,9 +60,8 @@ def derivatives(t, X, m1, l1,m2,l2, g):
     
     return [w1, a1, w2, a2]
 
-theta10 = np.pi/5
-theta20 = 0#np.pi/5
-
+theta10 = np.pi/3
+theta20 = 0
 
 res1 = solve_ivp(derivatives, [0, upperlim], [theta10,0,theta20,0],t_eval=np.linspace(0,upperlim,numpoints),args=(m1,l1,m2,l2,g))
 
@@ -83,6 +82,7 @@ x2 = x1 + l2* np.sin(theta2)
 y2 = y1 - l2*np.cos(theta2)
 
 
+        
 fig, ax = plt.subplots()
 
 ax.set_xlabel('T [Samples]')
@@ -97,8 +97,8 @@ def update(i):
     ax.clear()
 
     ax.set_aspect(1)
-    plt.xlim(-l1-l2, l1+l2)
-    plt.ylim(0, l1+l2)
+    plt.xlim(-5, 5)
+    plt.ylim(-5, 5)
     ax.scatter(x1[i],y1[i])
     ax.plot([0,x1[i]],[h,y1[i]])
     ax.scatter(x2[i],y2[i])
