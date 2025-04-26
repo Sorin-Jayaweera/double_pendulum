@@ -38,9 +38,9 @@ def matStuff(theta1, w1, theta2, w2, m1, l1, m2, l2, g):
     invA = np.matrix.getI(A)
     values = invA * v
 
-    print("inv: ", invA)
-    print("v: ", v)
-    print("values: ", values)
+    #print("inv: ", invA)
+    #print("v: ", v)
+    #print("values: ", values)
 
   
     return values[0],values[1]
@@ -57,21 +57,73 @@ def derivatives(t, X, m1, l1, m2, l2, g):
     
     return [w1, a1, w2, a2]
 
+def energy(theta1, w1, theta2, w2, m1, m2, l1, l2, g):
+    print("----- energy")
+    print("theta1: ", theta1, ", theta2 ", theta2, " w1 ", w1, ", w2 ", w2)
+    T = 1/2*m1*(w1**2)*(l1**2) + 1/2*m2*((w2**2) * (l2**2) + w1**2 * l2**2 + 2*abs(w1)*abs(w2)*l1*l2*np.cos(theta1 - theta2))
+    #U = abs(g)*(  abs((m1+m2) *l1*np.cos(theta1)) + abs(m2*l2*np.cos(theta2) ))
+    h = l1 + l2
+    y1 = h-(l1*np.cos(theta1))
+
+    y2 = y1 - l2*np.cos(theta2)
+    
+    U= abs(y1*m1*g) + abs(y2*m2*g)
+
+    print("here: ", np.cos(theta1-theta2))
+    return T, U, T+U
+
+energyVec = np.vectorize(energy)
+
+def graphEnergy(timeArr, theta1arr, w1arr, theta2arr, w2arr, m1, m2, l1, l2, g):
+    print("----- graph energy")
+    idx = 0
+    print("theta1: ", theta1arr[idx], ", theta2 ", theta2arr[idx], " w1 ", w1arr[idx], ", w2 ", w2arr[idx])
+   
+    if np.size(timeArr) != np.size(theta1arr) != np.size(theta2arr) != np.size(w1arr) != np.size(w2arr):
+        raise Exception("Sorry, no numbers below zero")
+    
+    m1Vec = np.full(np.size(theta1arr), m1)
+    m2Vec = np.full(np.size(theta1arr), m2)
+    l1Vec = np.full(np.size(theta1arr), l1)
+    l2Vec = np.full(np.size(theta1arr), l2)
+    gVec = np.full(np.size(theta1arr), g)
+    tVect, uVec, totVec = energyVec(theta1arr, w1arr, theta2arr, w2arr, m1Vec, m2Vec, l1Vec, l2Vec, gVec)
+    
+    fig, ax = plt.subplots()
+
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Energy')
+    
+    #plt.plot(timeArr, tVect, "ro", label="Kinetic Energy")
+    #plt.plot(timeArr, uVec, "bo", label="Potential Energy")
+    plt.plot(timeArr, totVec, "ro", label="Total Energy")
+    plt.set_xlim([])
+    plt.legend()
+    plt.show()
+    
 
 
-upperlim = 10
+
+upperlim = 50
 numpoints = 40 * upperlim +1
 
-m1,l1,m2,l2, g = [1,1,1,1,-9.8]
+m1,l1,m2,l2, g = [1,1,1,1,-10]#-9.8]
 
-theta10 = np.pi/2#np.pi/3
-theta20 = np.pi/2
+theta10 = np.pi/4#np.pi/3
+theta20 = np.pi/4
 
-res1 = solve_ivp(derivatives, [0, upperlim], [theta10,0,theta20,0],t_eval=np.linspace(0,upperlim,numpoints),args=(m1,l1,m2,l2,g))
+res1 = solve_ivp(derivatives, [0, upperlim], [theta10,0,theta20,0],t_eval=np.linspace(0,upperlim,numpoints),args=(m1,l1,m2,l2,g), rtol= 2.2205e-14, atol=1e-30)
 
 
 
 plt.close("all")
+
+
+#graphEnergy(timeArr, theta1arr, w1arr, theta2arr, w2arr, m1, m2, l1, l2, g):
+
+graphEnergy(np.linspace(0,upperlim,numpoints), res1.y[0,:], res1.y[1,:], res1.y[2,:], res1.y[3,:], m1, m2, l1, l2, g)
+
+
 theta1 = res1.y[0,:]
 theta2 = res1.y[2,:]
 t1 = res1.t
@@ -96,6 +148,9 @@ ax.scatter(0,l1)
 ax.scatter(0,l2)
 
 
+
+
+
 def update(i):
     ax.clear()
 
@@ -113,5 +168,4 @@ def update(i):
     
 ani = FuncAnimation(fig=fig, func=update, frames=len(x1), interval=30)
 plt.show()
-
 
