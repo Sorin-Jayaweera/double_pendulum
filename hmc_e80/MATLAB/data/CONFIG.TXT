@@ -1,0 +1,4 @@
+CH = 9
+FS = 64000
+AUTO = N
+TEST = N

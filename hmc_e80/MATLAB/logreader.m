@@ -1,0 +1,140 @@
+% logreader.m
+% Use this script to read data from your micro SD card
+
+clear;
+%clf;
+
+filenum = '01'; % file number for the data you want to read
+infofile = strcat('INF', filenum, '.txt');
+datafile = strcat('LOG', filenum, '.bin');
+
+%% map from datatype to length in bytes
+dataSizes.('float') = 4;
+dataSizes.('ulong') = 4;
+dataSizes.('int') = 4;
+dataSizes.('int32') = 4;
+dataSizes.('uint8') = 1;
+dataSizes.('uint16') = 2;
+dataSizes.('char') = 1;
+dataSizes.('bool') = 1;
+
+%% read from info file to get log file structure
+fileID = fopen(infofile);
+items = textscan(fileID,'%s','Delimiter',',','EndOfLine','\r\n');
+fclose(fileID);
+[ncols,~] = size(items{1});
+ncols = ncols/2;
+varNames = items{1}(1:ncols)';
+varTypes = items{1}(ncols+1:end)';
+varLengths = zeros(size(varTypes));
+colLength = 256;
+for i = 1:numel(varTypes)
+    varLengths(i) = dataSizes.(varTypes{i});
+end
+R = cell(1,numel(varNames));
+
+%% read column-by-column from datafile
+fid = fopen(datafile,'rb');
+for i=1:numel(varTypes)
+    %# seek to the first field of the first record
+    fseek(fid, sum(varLengths(1:i-1)), 'bof');
+    
+    %# % read column with specified format, skipping required number of bytes
+    R{i} = fread(fid, Inf, ['*' varTypes{i}], colLength-varLengths(i));
+    eval(strcat(varNames{i},'=','R{',num2str(i),'};'));
+end
+fclose(fid);
+
+%% Process your data here
+
+
+offsets = [-231,-227,980];
+
+accelXOffset = accelX - offsets(1);
+accelYOffset = accelY - offsets(2);
+accelZOffset = accelZ - offsets(3);
+
+figure; plot(accelXOffset); 
+title("X Acceleration");
+xlabel("Time [samples]"); 
+ylabel("Acceleration [cm/s^2]") 
+
+
+figure; plot(accelYOffset); 
+title("Y Acceleration");
+xlabel("Time [samples]"); 
+ylabel("Acceleration [cm/s^2]") 
+
+figure; plot(accelZOffset); 
+title("Z Acceleration");
+xlabel("Time [samples]"); 
+ylabel("Acceleration [cm/s^2]") 
+
+
+
+%%
+dt = 0.3130/1000; % ms / 1000 => s
+speedsArrX = [0];
+speedsArrY = [0];
+speedsArrZ = [0];
+
+for i = 1:length(accelZ)
+    speedsArrX = [speedsArrX, speedsArrX(end)+ accelXOffset(i)*dt];
+    speedsArrY = [speedsArrY, speedsArrY(end)+ accelYOffset(i)*dt];
+    speedsArrZ = [speedsArrZ, speedsArrZ(end)+ (accelZOffset(i))*dt];
+end
+
+
+distanceArrX = [0];
+distanceArrY = [0];
+distanceArrZ = [0];
+
+
+for i = 1:length(speedsArrX)
+    distanceArrX = [distanceArrX, distanceArrX(end)+ speedsArrX(i)*dt];
+    distanceArrY = [distanceArrY, distanceArrY(end)+ speedsArrY(i)*dt];
+    distanceArrZ = [distanceArrZ, distanceArrZ(end)+ (speedsArrZ(i))*dt];
+end
+
+
+%%
+steps = 0:0.1:0.5
+pathX = [0.*steps, 0.*steps, steps, 0.5-steps];
+pathY = [steps, 0.5-steps, 0.*steps, 0.*steps];
+
+figure; 
+plot(-distanceArrX,distanceArrY)
+hold on;
+plot(pathX,pathY)
+legend("Measured Path","Ideal Path")
+title("Accelerometer -> Distance Integration")
+xlabel("Distance in X [cm]");
+ylabel("Distance in Y [cm]");
+%%
+%figure;
+%plot(distanceArrY);
+
+
+figure;
+plot(depth);
+hold on;
+plot(depth_des);
+title("Depth vs Desired Depth")
+xlabel("Time [Samples]")
+ylabel("Depth [M]")
+%%
+figure; 
+plot(depth_des-depth, uV);
+title("Distance from desired vs Control Strength")
+xlabel("Difference in depth [cm]")
+ylabel("Control Effort")
+
+
+figure; 
+yyaxis left
+plot(depth_des-depth);
+yyaxis right;
+plot(uV)
+title("Distance from desired vs Control Strength")
+xlabel("Difference in depth [cm]")
+ylabel("Control Effort")
