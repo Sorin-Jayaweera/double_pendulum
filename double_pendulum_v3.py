@@ -4,6 +4,7 @@
 Created on Fri Apr 25 20:43:15 2025
 
 @author: alyrajan
+@author: wunderbear
 """
 
 import numpy as np
@@ -28,8 +29,6 @@ def matStuff(theta1, w1, theta2, w2, m1, l1, m2, l2, g):
     A = np.matrix([(al, be), (de, ep)])
     
     gamma = m1*l1*l2*np.sin(theta1-theta2) * (w1-w2) * w2 + g*(m1+m2)*l1*np.sin(theta1) - m2*w1*w2*l1*l2*np.sin(theta1-theta2)
-
-    #gamma = m2*w2*l1*l2*np.sin(theta1-theta2)*(w1-w2) - m2*w1*w2*l1*l2*np.sin(theta1 -theta2) +g*(m1+m2)*l1*np.sin(theta1) #m1*l1*l2*w2*np.sin(theta1 - theta2)*(w1-w2) + g*(m1 + m2)*l1*np.sin(theta1) - m2*w1*w2*l1*l2*np.sin(theta1 - theta2)
     phi = m2*w1*l1*l2*np.sin(theta1-theta2)*(w1-w2) + g*m2*l2*np.sin(theta2) + m2*w1*w2*l1*l2*np.sin(theta1-theta2) #(m2*l1*l2*np.sin(theta1 - theta2)*(w1-w2))*w1 + g*m2*l2*np.sin(theta2) + m2*theta2*l2**2 + m2
     v = np.matrix([[gamma], [phi]])
     
@@ -181,10 +180,13 @@ plt.close("all")
 fig, (ax1,ax2,ax3) = plt.subplots(1,3)
 
 
-for i in range(len(m1arr)):
+for i in range(numPendulums):
         
     theta1 = resArr[i].y[0,:]
     theta2 =  resArr[i].y[2,:]
+    
+    w1 = resArr[i].y[1,:]
+    w2 =  resArr[i].y[3,:]
     t1 =  resArr[i].t
     x1 = l1 * np.sin(theta1)
 
@@ -195,13 +197,22 @@ for i in range(len(m1arr)):
     x2 = x1 + l2* np.sin(theta2)
     y2 = y1 - l2*np.cos(theta2)
 
+    T = 1/2*m1*(w1**2)*(l1**2) + 1/2*m2*((w2**2) * (l2**2) + w1**2 * l2**2 + 2*abs(w1)*abs(w2)*l1*l2*np.cos(theta1 - theta2))
+    U = abs(y1*m1*g) + abs(y2*m2*g)
+   
+   
+    h = l1 + l2
+    y1 = h-(l1*np.cos(theta1))
 
+
+    y2 = y1 - l2*np.cos(theta2)
+    
     ax1.scatter(0,l1arr[i])
     ax1.scatter(0,l2arr[i])
 
-for i in range(numPendulums):
-
     ax2.scatter(t, distArr[i])
+
+    ax3.scatter(t,U)
     
     
 
