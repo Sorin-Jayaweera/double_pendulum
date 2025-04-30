@@ -174,10 +174,46 @@ for i in range(1,numPendulums):
 plt.rcParams['animation.embed_limit'] = 2**128
 
 """
+
+Etot = np.array([0*t])
+Uarr = np.array([0*t])
+Tarr = np.array([0*t])
+
+for i in range(numPendulums):
+    theta1 = resArr[i].y[0,:]
+    theta2 =  resArr[i].y[2,:]
+    
+    w1 = resArr[i].y[1,:]
+    w2 =  resArr[i].y[3,:]
+    t1 =  resArr[i].t
+
+    h = l1 + l2
+
+    x1 = l1 * np.sin(theta1)
+    y1 = h-(l1*np.cos(theta1))
+
+    x2 = x1 + l2* np.sin(theta2)
+    y2 = y1 - l2*np.cos(theta2)
+
+    T = 1/2*m1*(w1**2)*(l1**2) + 1/2*m2*((w2**2) * (l2**2) + w1**2 * l2**2 + 2*abs(w1)*abs(w2)*l1*l2*np.cos(theta1 - theta2))
+    U = abs(y1*m1*g) + abs(y2*m2*g)
+   
+    Etot = np.append(Etot, [U+T],axis=0)
+
+    Uarr = np.append(Uarr, [U],axis=0)
+    Tarr = np.append(Tarr, [T],axis=0)
+
+Etot = Etot[1:,:]
+Tarr = Tarr[1:,:]
+Uarr = Uarr[1:,:]
+
+
+
+plt.rcParams['animation.embed_limit'] = 2**128
+
 plt.close("all")
 
-
-fig, (ax1,ax2,ax3) = plt.subplots(1,3)
+fig, ax = plt.subplots(2,2)
 
 
 for i in range(numPendulums):
@@ -188,39 +224,28 @@ for i in range(numPendulums):
     w1 = resArr[i].y[1,:]
     w2 =  resArr[i].y[3,:]
     t1 =  resArr[i].t
-    x1 = l1 * np.sin(theta1)
-
+    
     h = l1 + l2
 
+    x1 = l1 * np.sin(theta1)
     y1 = h-(l1*np.cos(theta1))
 
     x2 = x1 + l2* np.sin(theta2)
     y2 = y1 - l2*np.cos(theta2)
 
-    T = 1/2*m1*(w1**2)*(l1**2) + 1/2*m2*((w2**2) * (l2**2) + w1**2 * l2**2 + 2*abs(w1)*abs(w2)*l1*l2*np.cos(theta1 - theta2))
-    U = abs(y1*m1*g) + abs(y2*m2*g)
-   
-   
-    h = l1 + l2
-    y1 = h-(l1*np.cos(theta1))
-
-
-    y2 = y1 - l2*np.cos(theta2)
     
-    ax1.scatter(0,l1arr[i])
-    ax1.scatter(0,l2arr[i])
+    ax[0,0].scatter(0,l1arr[i])
+    ax[0,0].scatter(0,l2arr[i])
 
-    ax2.scatter(t, distArr[i])
+    ax[0,1].scatter(t, distArr[i])
 
-    ax3.scatter(t,U)
     
-    
-
 
 def update(frame):
-    ax1.clear()
+    ax[0,0].clear()
 
-    ax2.clear()
+    ax[0,1].clear()
+    ax[1,0].clear()
     
     for i in range(numPendulums-1,-1,-1):
             
@@ -235,39 +260,58 @@ def update(frame):
 
         x2 = x1 + l2arr[i]* np.sin(theta2)
         y2 = y1 - l2arr[i]*np.cos(theta2)
-        
+
         if(i == 0):
                 
-            ax1.scatter(x1[frame],y1[frame]) # point 1
-            ax1.plot([0,x1[frame]],[h,y1[frame]],linewidth=4) # line from 0 - 1
-            ax1.scatter(x2[frame],y2[frame]) # point 2
-            ax1.plot([x1[frame],x2[frame]],[y1[frame],y2[frame]],linewidth=4) # line from 1 - 2
+            ax[0,0].scatter(x1[frame],y1[frame]) # point 1
+            ax[0,0].plot([0,x1[frame]],[h,y1[frame]],linewidth=4) # line from 0 - 1
+            ax[0,0].scatter(x2[frame],y2[frame]) # point 2
+            ax[0,0].plot([x1[frame],x2[frame]],[y1[frame],y2[frame]],linewidth=4) # line from 1 - 2
         else:
                 
-            ax1.scatter(x1[frame],y1[frame]) # point 1
-            ax1.plot([0,x1[frame]],[h,y1[frame]],linewidth=1) # line from 0 - 1
-            ax1.scatter(x2[frame],y2[frame]) # point 2
-            ax1.plot([x1[frame],x2[frame]],[y1[frame],y2[frame]],linewidth=1) # line from 1 - 2
+            ax[0,0].scatter(x1[frame],y1[frame]) # point 1
+            ax[0,0].plot([0,x1[frame]],[h,y1[frame]],linewidth=1) # line from 0 - 1
+            ax[0,0].scatter(x2[frame],y2[frame]) # point 2
+            ax[0,0].plot([x1[frame],x2[frame]],[y1[frame],y2[frame]],linewidth=1) # line from 1 - 2
                 
-        ax1.set_xlim(-l1arr[i]-l2arr[i], l1arr[i]+l2arr[i])
-        ax1.set_ylim(0, 2*(l1arr[i]+l2arr[i]))
-        ax1.set_xlabel('T [Samples]')
-        ax1.set_ylabel('X')
+        ax[0,0].set_xlim(-l1arr[i]-l2arr[i], l1arr[i]+l2arr[i])
+        ax[0,0].set_ylim(0, 2*(l1arr[i]+l2arr[i]))
+        ax[0,0].set_xlabel('T [Samples]')
+        ax[0,0].set_ylabel('X')
 
-        ax1.set_aspect(1)
+        ax[0,0].set_aspect(1)
 
     for i in range(numPendulums-1,0,-1):
-        ax2.scatter(t[1:frame], distArr[i][1:frame])
-        ax2.set_title("Distance Metric")
-        ax2.set_xlabel("Time")
-        ax2.set_ylabel("Distance")
-    
+        ax[0,1].scatter(t1[1:frame], distArr[i][1:frame])
+        ax[0,1].set_title("Distance Metric")
+        ax[0,1].set_xlabel("Time")
+        ax[0,1].set_ylabel("Distance")     
+
+        ax[1,0].scatter(t1[1:frame],Etot[i][1:frame])    
+        ax[1,0].set_title("Energy Conservation")
+        ax[1,0].set_xlabel("Time")
+        ax[1,0].set_ylabel("Totatl Energy")     
+        
+        ax[1,1].plot(t1[1:frame],Uarr[i][1:frame],label="Potential")     
+        ax[1,1].plot(t1[1:frame],Tarr[i][1:frame],label="Kinetic")    
+        ax[1,1].set_title("Energy Breakdown")
+        ax[1,1].set_xlabel("Time")
+        ax[1,1].set_ylabel("Energy")        
+
     fig.tight_layout()
 ani = FuncAnimation(fig=fig, func=update, frames= len(t), interval=10) 
 
 plt.show()
 
 HTML(ani.to_jshtml())
+
+
+
+
+
+
+
+
 
 maxw1 = 0
 maxw2 = 0
