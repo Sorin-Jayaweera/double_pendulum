@@ -1,0 +1,5 @@
+Changing m1 and m2.
+With epsilon on m= 1.
+ epsilon = 1e-8, rtol=atol=1e-9.
+At time 2025-05-04 12:15:53.311756.
+l1=l2=1, g=9.81, m1 and m2 go from 0.01 to 100 with 150 points
